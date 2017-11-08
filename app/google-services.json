@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "827470511453",
+    "firebase_url": "https://oop1-9c417.firebaseio.com",
+    "project_id": "oop1-9c417",
+    "storage_bucket": "oop1-9c417.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827470511453:android:f5b7b9f54ae52820",
+        "android_client_info": {
+          "package_name": "com.example.admin.btloop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "827470511453-480uutu697pncascokeq499ke1pjknm2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmn9UJT7k8mdqTUxdAEAn8-lI4QwjKsMM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
