@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.admin.btloop.dialog.ConfirmQuitDialog;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tvQuesttion;
     private ImageView imgSuggest1;
     private ImageView imgSuggest2;
+    private DatabaseReference mRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     protected void iniUI() {
+        mRoot = FirebaseDatabase.getInstance().getReference();
         btnAnswerA = (Button) findViewById(R.id.btn_answer_a);
         btnAnswerB = (Button) findViewById(R.id.btn_answer_b);
         btnAnswerC = (Button) findViewById(R.id.btn_answer_c);
