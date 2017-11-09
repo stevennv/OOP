@@ -15,9 +15,11 @@ import com.example.admin.btloop.R;
 public class ConfirmQuitDialog extends Dialog implements View.OnClickListener {
     private Button btnCancel;
     private Button btnOk;
+    private clickQuit clickQuit;
 
-    public ConfirmQuitDialog(Context context) {
+    public ConfirmQuitDialog(Context context, clickQuit clickQuit) {
         super(context);
+        this.clickQuit = clickQuit;
     }
 
     @Override
@@ -31,6 +33,7 @@ public class ConfirmQuitDialog extends Dialog implements View.OnClickListener {
         btnCancel = (Button) findViewById(R.id.btn_cancel);
         btnOk = (Button) findViewById(R.id.btn_ok);
         btnCancel.setOnClickListener(this);
+        btnOk.setOnClickListener(this);
     }
 
     @Override
@@ -39,6 +42,14 @@ public class ConfirmQuitDialog extends Dialog implements View.OnClickListener {
             case R.id.btn_cancel:
                 dismiss();
                 break;
+            case R.id.btn_ok:
+                clickQuit.out();
+                dismiss();
+                break;
         }
+    }
+
+    public interface clickQuit {
+        void out();
     }
 }

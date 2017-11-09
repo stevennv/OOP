@@ -5,4 +5,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="white">#ffffff</color>
     <color name="color_btn_answer">#b7a51d</color>
+    <color name="black">#000000</color>
+    <color name="color_btn_level">#0899a6</color>
 </resources>

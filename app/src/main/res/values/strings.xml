@@ -3,4 +3,13 @@
     <string name="cancel">Hủy</string>
     <string name="ok">Ok</string>
     <string name="confirm_quit">Bạn có muốn dừng cuộc chơi tại đây</string>
+    <string name="play">Chơi</string>
+    <string name="add_question">Thêm câu hỏi</string>
+    <string name="level_1">Dễ</string>
+    <string name="level_2">Trung bình</string>
+    <string name="level_3">Khó</string>
+    <string name="enter_question">Nhập câu hỏi</string>
+    <string name="enter_correct_answer">Nhập câu trả lời đúng</string>
+    <string name="enter_uncorrect_answer">Nhập câu trả lời sai</string>
+    <string name="send_success">Gửi thành công</string>
 </resources>
