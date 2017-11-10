@@ -1,17 +1,14 @@
 package com.example.admin.btloop.activity;
 
-import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Surface;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.Window;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.BounceInterpolator;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -19,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.admin.btloop.R;
+import com.example.admin.btloop.dialog.AskOpinionDialog;
 import com.example.admin.btloop.dialog.ConfirmQuitDialog;
 import com.example.admin.btloop.model.Question;
 import com.google.firebase.database.DataSnapshot;
@@ -32,8 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import static android.view.Surface.ROTATION_270;
-
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btnAnswerA;
     private Button btnAnswerB;
@@ -43,6 +39,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView imgSuggest1;
     private ImageView imgSuggest2;
     private ImageView imgSuggest3;
+    private ImageView imgSuggest4;
     private DatabaseReference mRoot;
     private List<Question> listLv1 = new ArrayList<>();
     private List<Question> listLv2 = new ArrayList<>();
@@ -51,7 +48,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private int correct;
     private int myAnswer;
     private ImageView imgMinion;
-    private RelativeLayout rlMinion;
+    private float bottomOfScreen;
+    private float finalHeight;
+    private RelativeLayout rlSuggest;
+    private TextView tvAnswerSuggest;
+    private Button btnThanks;
+    private List<Float> list = new ArrayList<>();
+    private boolean dismiss = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +74,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         imgSuggest1 = (ImageView) findViewById(R.id.img_suggest1);
         imgSuggest2 = (ImageView) findViewById(R.id.img_suggest2);
         imgSuggest3 = (ImageView) findViewById(R.id.img_suggest3);
+        imgSuggest4 = (ImageView) findViewById(R.id.img_suggest4);
         imgMinion = (ImageView) findViewById(R.id.img_minion);
-        rlMinion = (RelativeLayout) findViewById(R.id.rl_minion);
+        rlSuggest = (RelativeLayout) findViewById(R.id.rl_suggest);
+        tvAnswerSuggest = (TextView) findViewById(R.id.tv_answer_suggest);
+        btnThanks = (Button) findViewById(R.id.btn_thanks);
         btnAnswerA.setOnClickListener(this);
         btnAnswerB.setOnClickListener(this);
         btnAnswerC.setOnClickListener(this);
@@ -80,7 +86,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         imgSuggest1.setOnClickListener(this);
         imgSuggest2.setOnClickListener(this);
         imgSuggest3.setOnClickListener(this);
+        imgSuggest4.setOnClickListener(this);
         disableButton();
+        btnThanks.setOnClickListener(this);
 
     }
 
@@ -120,29 +128,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 suggest1(correct);
                 break;
             case R.id.img_suggest2:
-                animationMinion();
+//                animationMinion();
+                suggest2(correct);
                 break;
             case R.id.img_suggest3:
+                suggest3(3);
+                break;
+            case R.id.btn_thanks:
+                rlSuggest.setVisibility(View.GONE);
+                break;
+            case R.id.img_suggest4:
+                suggest4();
                 break;
 
         }
     }
 
-    private void suggest1(int correct) {
-//        imgSuggest1.setVisibility(View.INVISIBLE);
-        List<String> list = new ArrayList<>();
-        list.add("1");
-        list.add("2");
-        list.add("3");
-        list.add("4");
-        Random random = new Random();
-        int numberSecond = randomNumberRange(4, 1, correct);
-        list.remove(String.valueOf(correct));
-        list.remove(String.valueOf(numberSecond));
-        for (int i = 0; i < 2; i++) {
-            setInvisible(Integer.parseInt(list.get(i)));
-        }
-    }
 
     public Integer randomNumberRange(int max, int min, int block) {
         Random rand = new Random();
@@ -204,7 +205,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     Log.d("onDataChange", "onDataChange: " + question.getQuestion() + "\n" + question.getCorrect());
                     listLv1.add(question);
                 }
-//                Collections.shuffle(listLv1);
+                Collections.shuffle(listLv1);
 //                tvQuesttion.setText(listLv1.get(0).getQuestion());
 //                Log.d("onDataChange", "onDataChange: " + listLv1.get(1).getCorrect());
                 setData(numberQuestion);
@@ -270,7 +271,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             btnAnswerC.setText(question2.getAnswerC());
             btnAnswerD.setText(question2.getAnswerD());
             correct = question2.getCorrect();
-        } else if (numberQuestion >= 10 && numberQuestion < 15) {
+        } else if (numberQuestion >= 10 && numberQuestion <= 15) {
+//            if (dismiss) {
+//                if (numberQuestion == 15) {
+//                    Question question3 = listLv3.get(numberQuestion - 10);
+//                    tvQuesttion.setText(question3.getQuestion());
+//                    btnAnswerA.setText(question3.getAnswerA());
+//                    btnAnswerB.setText(question3.getAnswerB());
+//                    btnAnswerC.setText(question3.getAnswerC());
+//                    btnAnswerD.setText(question3.getAnswerD());
+//                    correct = question3.getCorrect();
+//                }
+//            } else {
             Question question3 = listLv3.get(numberQuestion - 10);
             tvQuesttion.setText(question3.getQuestion());
             btnAnswerA.setText(question3.getAnswerA());
@@ -278,6 +290,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             btnAnswerC.setText(question3.getAnswerC());
             btnAnswerD.setText(question3.getAnswerD());
             correct = question3.getCorrect();
+//            }
+
         } else {
             endGame();
         }
@@ -287,6 +301,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void checkAnswer(int myAnswer) {
 //        disableButton();
+        rlSuggest.setVisibility(View.GONE);
         if (myAnswer == correct) {
 //            Toast.makeText(getApplicationContext(), "Đúng", Toast.LENGTH_SHORT).show();
             numberQuestion++;
@@ -307,23 +322,74 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }).show();
     }
 
-    private void animationMinion() {
-        rlMinion.setVisibility(View.VISIBLE);
-        TranslateAnimation animation = new TranslateAnimation(0f, 0f, 0f, getDisplayHeight());
-        animation.setStartOffset(500);
-        animation.setDuration(2000);
-        animation.setFillAfter(true);
-        animation.setInterpolator(new BounceInterpolator());
-        animation.setInterpolator(getApplicationContext(), android.R.anim.bounce_interpolator);
-        rlMinion.startAnimation(animation);
+    private void suggest1(int correct) {
+        imgSuggest1.setVisibility(View.INVISIBLE);
+        List<String> list = new ArrayList<>();
+        list.add("1");
+        list.add("2");
+        list.add("3");
+        list.add("4");
+        Random random = new Random();
+        int numberSecond = randomNumberRange(4, 1, correct);
+        list.remove(String.valueOf(correct));
+        list.remove(String.valueOf(numberSecond));
+        for (int i = 0; i < 2; i++) {
+            setInvisible(Integer.parseInt(list.get(i)));
+        }
     }
 
-    private int getDisplayHeight() {
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        int rotation = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getOrientation();
-
-        return rotation;
+    private void suggest2(int answer) {
+        imgSuggest2.setVisibility(View.INVISIBLE);
+        tvAnswerSuggest.setText("Tôi xin tư vấn cho bạn đáp án " + convertIntToAnswer(answer) + " là đáp án đúng!!!");
+        bottomOfScreen = getResources().getDisplayMetrics()
+                .heightPixels / 2;
+        Log.d("iniUI: ", "iniUI: " + getResources().getDisplayMetrics().heightPixels / 2 + "\n" + finalHeight);
+        rlSuggest.setVisibility(View.VISIBLE);
+        rlSuggest.animate()
+                .translationY(bottomOfScreen)
+                .setInterpolator(new AccelerateInterpolator())
+                .setInterpolator(new BounceInterpolator())
+                .setDuration(2000);
     }
 
+    private void suggest3(int correct) {
+        list.clear();
+        int total = 99;
+        int number = 0;
+        Random random = new Random();
+        for (int i = 0; i < 4; i++) {
+            if (i != 3) {
+                number = random.nextInt(total);
+                total = total - number;
+            } else {
+                number = total + 1;
+            }
+            list.add((float) number);
+            Log.d("suggest3", "suggest3: " + number);
+        }
+        AskOpinionDialog dialog1 = new AskOpinionDialog(this, android.R.style.Theme_Light, list);
+        dialog1.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog1.setContentView(R.layout.dialog_ask_opinion);
+        dialog1.show();
+        imgSuggest3.setVisibility(View.INVISIBLE);
+    }
+
+    private void suggest4() {
+        dismiss = true;
+        numberQuestion++;
+        setData(numberQuestion);
+        imgSuggest4.setVisibility(View.INVISIBLE);
+    }
+
+    private String convertIntToAnswer(int number) {
+        if (number == 1) {
+            return "A";
+        } else if (number == 2) {
+            return "B";
+        } else if (number == 3) {
+            return "C";
+        } else {
+            return "D";
+        }
+    }
 }

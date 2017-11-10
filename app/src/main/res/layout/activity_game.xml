@@ -66,6 +66,7 @@
                 android:layout_weight="1">
 
                 <ImageView
+                    android:id="@+id/img_suggest4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
@@ -79,7 +80,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="ddaay la cai gi"
             android:textColor="#3c88a6"
             android:textSize="18dp"
             android:textStyle="bold" />
@@ -145,14 +145,41 @@
 
     <RelativeLayout
         android:id="@+id/rl_minion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/img_minion"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:id="@+id/rl_suggest"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/ic_minion"
-            android:visibility="visible" />
+            android:layout_marginTop="-200dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_answer_suggest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_btn_level"
+                android:gravity="center"
+                android:padding="@dimen/padding_20" />
+
+            <ImageView
+                android:id="@+id/img_minion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_answer_suggest"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/ic_minion"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/btn_thanks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/img_minion"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/bg_dialog_quit"
+                android:text="Ok" />
+        </RelativeLayout>
     </RelativeLayout>
 </RelativeLayout>
