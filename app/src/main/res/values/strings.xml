@@ -4,11 +4,13 @@
     <string name="fb_login_protocol_scheme">fb1861051217242908</string>
     <string name="cancel">Hủy</string>
     <string name="ok">Ok</string>
+    <string name="invite">Mời</string>
     <string name="confirm_quit">Bạn có muốn dừng cuộc chơi tại đây</string>
     <string name="play">Chơi</string>
     <string name="add_question">Thêm câu hỏi</string>
     <string name="login">Đăng nhập</string>
     <string name="logout">Đăng xuất</string>
+    <string name="friends">Bạn bè</string>
     <string name="level_1">Dễ</string>
     <string name="level_2">Trung bình</string>
     <string name="level_3">Khó</string>

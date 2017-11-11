@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnAddQuestion;
     private Button btnLogin;
     private Button btnLogout;
+    private Button btnFriends;
     private CallbackManager callbackManager;
     private SharedPreferencesUtils utils;
     private CircleImageView civAvatar;
@@ -56,10 +57,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         civAvatar = (CircleImageView) findViewById(R.id.civ_avatar);
         tvName = (TextView) findViewById(R.id.tv_name);
         btnLogout = (Button) findViewById(R.id.btn_logout);
+        btnFriends = (Button) findViewById(R.id.btn_friends);
         btnAddQuestion.setOnClickListener(this);
         btnPlay.setOnClickListener(this);
         btnLogin.setOnClickListener(this);
         btnLogout.setOnClickListener(this);
+        btnFriends.setOnClickListener(this);
         checkLogin();
     }
 
@@ -79,6 +82,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_logout:
                 logout();
+                break;
+            case R.id.btn_friends:
+                Intent intent2 = new Intent(this, FriendsActivity.class);
+                startActivity(intent2);
                 break;
         }
     }
