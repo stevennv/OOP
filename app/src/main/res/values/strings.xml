@@ -5,9 +5,13 @@
     <string name="cancel">Hủy</string>
     <string name="ok">Ok</string>
     <string name="invite">Mời</string>
+    <string name="invited">đã gửi lời mời chơi đến bạn</string>
     <string name="confirm_quit">Bạn có muốn dừng cuộc chơi tại đây</string>
     <string name="play">Chơi</string>
     <string name="add_question">Thêm câu hỏi</string>
+    <string name="done">Đồng ý</string>
+    <string name="reject">Từ chối</string>
+    <string name="notification">Thông báo</string>
     <string name="login">Đăng nhập</string>
     <string name="logout">Đăng xuất</string>
     <string name="friends">Bạn bè</string>
@@ -18,4 +22,5 @@
     <string name="enter_correct_answer">Nhập câu trả lời đúng</string>
     <string name="enter_uncorrect_answer">Nhập câu trả lời sai</string>
     <string name="send_success">Gửi thành công</string>
+    <string name="pls_select_anyone">Hãy chọn 1 người bạn</string>
 </resources>

@@ -43,4 +43,24 @@ public class SharedPreferencesUtils {
         UserInfo userInfo = gson.fromJson(json, UserInfo.class);
         return userInfo;
     }
+
+    public void saveKeyInvite(String key) {
+        editor.putString(Common.KEY_INVITE, key);
+        editor.commit();
+    }
+
+    public String getKeyInvite() {
+        String key = preferences.getString(Common.KEY_INVITE, "");
+        return key;
+    }
+
+    public void saveIdInvite(String id) {
+        editor.putString(Common.ID_INVITE, id);
+        editor.commit();
+    }
+
+    public String getIdInvite() {
+        String id = preferences.getString(Common.ID_INVITE, "");
+        return id;
+    }
 }

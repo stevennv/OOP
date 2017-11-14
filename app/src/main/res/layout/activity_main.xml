@@ -7,23 +7,56 @@
     android:orientation="vertical"
     tools:context="com.example.admin.btloop.activity.MainActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:orientation="horizontal">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/civ_avatar"
-            android:layout_width="80dp"
-            android:layout_height="80dp" />
-
-        <TextView
-            android:id="@+id/tv_name"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/padding_10" />
-    </LinearLayout>
+            android:layout_centerInParent="true"
+            android:gravity="center_vertical">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/civ_avatar"
+                android:layout_width="80dp"
+                android:layout_height="80dp" />
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/padding_10" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_noti"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/img_noti"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_noti" />
+
+            <TextView
+                android:id="@+id/tv_noti"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginLeft="-15dp"
+                android:layout_toRightOf="@+id/img_noti"
+                android:background="@drawable/bg_notification"
+                android:gravity="center"
+                android:padding="3dp"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                android:visibility="gone" />
+        </RelativeLayout>
+    </RelativeLayout>
 
     <Button
         android:id="@+id/btn_play"
@@ -44,13 +77,16 @@
         android:text="@string/login" />
 
     <Button
-        android:id="@+id/btn_logout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/logout" />
-    <Button
         android:id="@+id/btn_friends"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/friends" />
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/logout" />
+
+
 </LinearLayout>
