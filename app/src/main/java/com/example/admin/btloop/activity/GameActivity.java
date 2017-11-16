@@ -18,8 +18,11 @@ import android.widget.Toast;
 import com.example.admin.btloop.R;
 import com.example.admin.btloop.dialog.AskOpinionDialog;
 import com.example.admin.btloop.dialog.ConfirmQuitDialog;
+import com.example.admin.btloop.model.Noti;
 import com.example.admin.btloop.model.Question;
+import com.example.admin.btloop.utils.Common;
 import com.example.admin.btloop.utils.Couttime;
+import com.example.admin.btloop.utils.SharedPreferencesUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +40,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnAnswerC;
     private Button btnAnswerD;
     private TextView tvQuesttion;
+    private TextView tvTime;
     private ImageView imgSuggest1;
     private ImageView imgSuggest2;
     private ImageView imgSuggest3;
@@ -57,6 +61,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private List<Float> list = new ArrayList<>();
     private boolean dismiss = false;
     private Couttime coutTime;
+    private Couttime couttimeQuestion;
+    private List<Integer> listCorrect = new ArrayList<>();
+    private int cout;
+    private String idRival;
+    private String keyPlay;
+    private SharedPreferencesUtils utils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +77,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     protected void iniUI() {
+        utils = new SharedPreferencesUtils(this);
         mRoot = FirebaseDatabase.getInstance().getReference();
         btnAnswerA = (Button) findViewById(R.id.btn_answer_a);
         btnAnswerB = (Button) findViewById(R.id.btn_answer_b);
@@ -78,6 +89,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         imgSuggest3 = (ImageView) findViewById(R.id.img_suggest3);
         imgSuggest4 = (ImageView) findViewById(R.id.img_suggest4);
         imgMinion = (ImageView) findViewById(R.id.img_minion);
+        tvTime = (TextView) findViewById(R.id.tv_count_down);
         rlSuggest = (RelativeLayout) findViewById(R.id.rl_suggest);
         tvAnswerSuggest = (TextView) findViewById(R.id.tv_answer_suggest);
         btnThanks = (Button) findViewById(R.id.btn_thanks);
@@ -91,7 +103,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         imgSuggest4.setOnClickListener(this);
         disableButton();
         btnThanks.setOnClickListener(this);
-
+        if (getIntent() != null) {
+            idRival = getIntent().getStringExtra(Common.INFO_RIVAL);
+            if (Float.valueOf(idRival) > Float.valueOf(utils.getUserInfo().getId())) {
+                keyPlay = idRival + utils.getUserInfo().getId();
+            } else {
+                keyPlay = utils.getUserInfo().getId() + idRival;
+            }
+            utils.saveKeyPlay(keyPlay);
+        }
     }
 
     @Override
@@ -196,141 +216,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         btnAnswerD.setClickable(true);
     }
 
-
-    private void getQuestionGame() {
-        mRoot.child("Question").child("level_1").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                listLv1.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Question question = snapshot.getValue(Question.class);
-                    Log.d("onDataChange", "onDataChange: " + question.getQuestion() + "\n" + question.getCorrect());
-                    listLv1.add(question);
-                }
-                Collections.shuffle(listLv1);
-//                tvQuesttion.setText(listLv1.get(0).getQuestion());
-//                Log.d("onDataChange", "onDataChange: " + listLv1.get(1).getCorrect());
-                setData(numberQuestion);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        mRoot.child("Question").child("level_2").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                listLv2.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Question question = snapshot.getValue(Question.class);
-                    Log.d("onDataChange", "onDataChange: " + question.getQuestion() + "\n" + question.getCorrect());
-                    listLv2.add(question);
-                }
-                Collections.shuffle(listLv2);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        mRoot.child("Question").child("level_3").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                listLv3.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Question question = snapshot.getValue(Question.class);
-                    Log.d("onDataChange", "onDataChange: " + question.getQuestion() + "\n" + question.getCorrect());
-                    listLv3.add(question);
-                }
-                Collections.shuffle(listLv3);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-//        setData(numberQuestion);
-    }
-
-    private void setData(final int questionNumber) {
-        coutTime = new Couttime(1000, 250, new Couttime.finish() {
-            @Override
-            public void finish() {
-                setVisible();
-                if (numberQuestion >= 0 && numberQuestion < 5) {
-                    Question question1 = listLv1.get(questionNumber);
-                    tvQuesttion.setText(question1.getQuestion());
-                    btnAnswerA.setText(question1.getAnswerA());
-                    btnAnswerB.setText(question1.getAnswerB());
-                    btnAnswerC.setText(question1.getAnswerC());
-                    btnAnswerD.setText(question1.getAnswerD());
-                    correct = question1.getCorrect();
-                } else if (numberQuestion >= 5 && numberQuestion < 10) {
-                    Question question2 = listLv2.get(numberQuestion - 5);
-                    tvQuesttion.setText(question2.getQuestion());
-                    btnAnswerA.setText(question2.getAnswerA());
-                    btnAnswerB.setText(question2.getAnswerB());
-                    btnAnswerC.setText(question2.getAnswerC());
-                    btnAnswerD.setText(question2.getAnswerD());
-                    correct = question2.getCorrect();
-                } else if (numberQuestion >= 10 && numberQuestion <= 15) {
-//            if (dismiss) {
-//                if (numberQuestion == 15) {
-//                    Question question3 = listLv3.get(numberQuestion - 10);
-//                    tvQuesttion.setText(question3.getQuestion());
-//                    btnAnswerA.setText(question3.getAnswerA());
-//                    btnAnswerB.setText(question3.getAnswerB());
-//                    btnAnswerC.setText(question3.getAnswerC());
-//                    btnAnswerD.setText(question3.getAnswerD());
-//                    correct = question3.getCorrect();
-//                }
-//            } else {
-                    Question question3 = listLv3.get(numberQuestion - 10);
-                    tvQuesttion.setText(question3.getQuestion());
-                    btnAnswerA.setText(question3.getAnswerA());
-                    btnAnswerB.setText(question3.getAnswerB());
-                    btnAnswerC.setText(question3.getAnswerC());
-                    btnAnswerD.setText(question3.getAnswerD());
-                    correct = question3.getCorrect();
-//            }
-
-                } else {
-                    endGame();
-                }
-                enableButton();
-                Log.d("setData", "setData: " + numberQuestion);
-            }
-        });
-        coutTime.start();
-
-    }
-
-    private void checkAnswer(int myAnswer) {
-//        disableButton();
-        rlSuggest.setVisibility(View.GONE);
-        if (myAnswer == correct) {
-//            Toast.makeText(getApplicationContext(), "Đúng", Toast.LENGTH_SHORT).show();
-            numberQuestion++;
-            setData(numberQuestion);
-        } else {
-            Toast.makeText(getApplicationContext(), "Sai", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void endGame() {
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setMessage("Chúc mừng bạn đã vượt qua 15 câu hỏi")
-                .setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
-                    }
-                }).show();
-    }
-
+    ////// Suggest
     private void suggest1(int correct) {
         imgSuggest1.setVisibility(View.INVISIBLE);
         List<String> list = new ArrayList<>();
@@ -390,6 +276,127 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         imgSuggest4.setVisibility(View.INVISIBLE);
     }
 
+
+    //// End Suggest
+
+
+    private void getQuestionGame() {
+        mRoot.child("Question").child("level_1").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listLv1.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Question question = snapshot.getValue(Question.class);
+                    Log.d("onDataChange", "onDataChange: " + question.getQuestion() + "\n" + question.getCorrect());
+                    listLv1.add(question);
+                }
+                Collections.shuffle(listLv1);
+//                tvQuesttion.setText(listLv1.get(0).getQuestion());
+//                Log.d("onDataChange", "onDataChange: " + listLv1.get(1).getCorrect());
+                setData(numberQuestion);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        mRoot.child("Question").child("level_2").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listLv2.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Question question = snapshot.getValue(Question.class);
+                    Log.d("onDataChange", "onDataChange: " + question.getQuestion() + "\n" + question.getCorrect());
+                    listLv2.add(question);
+                }
+                Collections.shuffle(listLv2);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        mRoot.child("Question").child("level_3").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listLv3.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Question question = snapshot.getValue(Question.class);
+                    Log.d("onDataChange", "onDataChange: " + question.getQuestion() + "\n" + question.getCorrect());
+                    listLv3.add(question);
+                }
+                Collections.shuffle(listLv3);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void setData(final int questionNumber) {
+        coutTime = new Couttime(500, 500, new Couttime.finish() {
+            @Override
+            public void finish() {
+                enableButton();
+                setUpQuestion(questionNumber);
+                Log.d("execute:", "execute: " + "   " + numberQuestion);
+                couttimeQuestion = new Couttime(20000, 1000, new Couttime.finish() {
+                    @Override
+                    public void finish() {
+                        setData(numberQuestion);
+                    }
+                }, new Couttime.progress() {
+                    @Override
+                    public void execute(int time) {
+                        tvTime.setText(time + "");
+                    }
+                });
+                couttimeQuestion.start();
+            }
+        }, new Couttime.progress() {
+            @Override
+            public void execute(int time) {
+                disableButton();
+            }
+        });
+        coutTime.start();
+
+    }
+
+    private void checkAnswer(int myAnswer) {
+//        disableButton();
+        couttimeQuestion.cancel();
+        coutTime.cancel();
+        rlSuggest.setVisibility(View.GONE);
+        numberQuestion++;
+        setData(numberQuestion);
+        if (myAnswer == correct) {
+            listCorrect.add(numberQuestion);
+
+        }
+    }
+
+    private void endGame() {
+        if (idRival != null) {
+            mRoot.child("Play").child(keyPlay).child(utils.getUserInfo().getId()).setValue(coutNumberCorrect());
+        }
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setMessage("Chúc mừng bạn đã vượt qua 15 câu hỏi. \n  " +
+                        "Bạn đã trả lời đúng " + coutNumberCorrect() + " câu hỏi")
+                .setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
+                }).setCancelable(false)
+                .show();
+    }
+
+
     private String convertIntToAnswer(int number) {
         if (number == 1) {
             return "A";
@@ -400,5 +407,49 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             return "D";
         }
+    }
+
+    private void setUpQuestion(final int questionNumber) {
+
+        setVisible();
+        if (numberQuestion >= 0 && numberQuestion < 5) {
+            Question question1 = listLv1.get(questionNumber);
+            tvQuesttion.setText(question1.getQuestion());
+            btnAnswerA.setText(question1.getAnswerA());
+            btnAnswerB.setText(question1.getAnswerB());
+            btnAnswerC.setText(question1.getAnswerC());
+            btnAnswerD.setText(question1.getAnswerD());
+            correct = question1.getCorrect();
+        } else if (numberQuestion >= 5 && numberQuestion < 10) {
+            Question question2 = listLv2.get(numberQuestion - 5);
+            tvQuesttion.setText(question2.getQuestion());
+            btnAnswerA.setText(question2.getAnswerA());
+            btnAnswerB.setText(question2.getAnswerB());
+            btnAnswerC.setText(question2.getAnswerC());
+            btnAnswerD.setText(question2.getAnswerD());
+            correct = question2.getCorrect();
+        } else if (numberQuestion >= 10 && numberQuestion < 15) {
+            Question question3 = listLv3.get(numberQuestion - 10);
+            tvQuesttion.setText(question3.getQuestion());
+            btnAnswerA.setText(question3.getAnswerA());
+            btnAnswerB.setText(question3.getAnswerB());
+            btnAnswerC.setText(question3.getAnswerC());
+            btnAnswerD.setText(question3.getAnswerD());
+            correct = question3.getCorrect();
+        } else {
+//            couttimeQuestion.cancel();
+            if (cout == 0) {
+                endGame();
+                cout++;
+            }
+
+        }
+        enableButton();
+        Log.d("setData", "setData: " + numberQuestion);
+    }
+
+    private int coutNumberCorrect() {
+        int numberCorrect = listCorrect.size() - 1;
+        return numberCorrect;
     }
 }

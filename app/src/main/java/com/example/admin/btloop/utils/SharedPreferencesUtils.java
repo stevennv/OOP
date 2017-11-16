@@ -63,4 +63,14 @@ public class SharedPreferencesUtils {
         String id = preferences.getString(Common.ID_INVITE, "");
         return id;
     }
+
+    public void saveKeyPlay(String id) {
+        editor.putString(Common.KEY_PLAY, id);
+        editor.commit();
+    }
+
+    public String getKeyPlay() {
+        String id = preferences.getString(Common.KEY_PLAY, null);
+        return id;
+    }
 }

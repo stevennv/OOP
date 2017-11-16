@@ -9,4 +9,5 @@ public class Common {
     public static final String KEY_INVITE = "key_invite";
     public static final String ID_INVITE = "id_invite";
     public static final String INFO_RIVAL = "info_rival";
+    public static final String KEY_PLAY = "key_play";
 }

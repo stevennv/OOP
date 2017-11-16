@@ -2,14 +2,13 @@ package com.example.admin.btloop.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +18,9 @@ import com.example.admin.btloop.R;
 import com.example.admin.btloop.dialog.NotificationDialog;
 import com.example.admin.btloop.dialog.UserInfo;
 import com.example.admin.btloop.model.Noti;
+import com.example.admin.btloop.service.ChatHeadService;
+import com.example.admin.btloop.service.FloatingViewService;
+import com.example.admin.btloop.utils.Common;
 import com.example.admin.btloop.utils.SharedPreferencesUtils;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -36,6 +38,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.txusballesteros.bubbles.BubblesManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnLogin;
     private Button btnLogout;
     private Button btnFriends;
+    private Button btnWidget;
+    private TextView tvCoint;
     private CallbackManager callbackManager;
     private SharedPreferencesUtils utils;
     private CircleImageView civAvatar;
@@ -59,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ValueEventListener listenerNoti;
     private ValueEventListener listenerAccept;
     private List<Noti> list = new ArrayList<>();
+    private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
+    private int myPoint;
+    private int rivalPoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,13 +89,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnFriends = (Button) findViewById(R.id.btn_friends);
         tvNoti = (TextView) findViewById(R.id.tv_noti);
         rlNoti = (RelativeLayout) findViewById(R.id.rl_noti);
-
+        btnWidget = (Button) findViewById(R.id.btn_widget);
+        tvCoint = (TextView) findViewById(R.id.tv_coint);
+        btnWidget.setOnClickListener(this);
         btnAddQuestion.setOnClickListener(this);
         btnPlay.setOnClickListener(this);
         btnLogin.setOnClickListener(this);
         btnLogout.setOnClickListener(this);
         btnFriends.setOnClickListener(this);
         rlNoti.setOnClickListener(this);
+
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
     }
 
@@ -130,6 +147,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dialog.setContentView(R.layout.dialog_notification);
                 dialog.show();
                 break;
+            case R.id.btn_widget:
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+//
+//
+//                    //If the draw over permission is not available open the settings screen
+//                    //to grant the permission.
+//                    Intent intent3 = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+//                            Uri.parse("package:" + getPackageName()));
+//                    startActivityForResult(intent3, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
+//                } else {
+//                    startService(new Intent(MainActivity.this, FloatingViewService.class));
+//                    finish();
+//                }
+                Intent intent12 = new Intent(MainActivity.this, ChatHeadService.class);
+                intent12.putExtra("title", utils.getUserInfo().getAvatar());
+                intent12.putExtra("text", utils.getUserInfo().getName());
+                startService(intent12);
+                break;
         }
     }
 
@@ -148,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             /* handle the result */
                                 String json = response.getRawResponse();
                                 Gson gson = new Gson();
-                                UserInfo userInfo = gson.fromJson(json, UserInfo.class);
+                                final UserInfo userInfo = gson.fromJson(json, UserInfo.class);
                                 String avatar = "http://graph.facebook.com/"
                                         + userInfo.getId() + "/picture?type=large";
                                 Log.d("onCompleted:", "onCompleted: " + avatar);
@@ -160,7 +195,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 tvName.setText(userInfo.getName());
                                 btnLogin.setVisibility(View.GONE);
                                 btnLogout.setVisibility(View.VISIBLE);
-                                mRoot.child("Home").child(userInfo.getId()).setValue(userInfo);
+                                mRoot.child("Home").addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.hasChild(userInfo.getId())) {
+                                            userInfo.setCoint(0);
+                                            mRoot.child("Home").child(userInfo.getId()).setValue(userInfo);
+                                            tvCoint.setText("0");
+                                        } else {
+                                            mRoot.child("Home").child(userInfo.getId()).setValue(userInfo);
+                                            updateCoin(userInfo);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
                             }
                         }
                 ).executeAsync();
@@ -181,7 +234,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
+            if (resultCode == RESULT_OK) {
+                startService(new Intent(MainActivity.this, FloatingViewService.class));
+                finish();
+            } else { //Permission is not available
+                Toast.makeText(this,
+                        "Draw over other app permission not available. Closing the application",
+                        Toast.LENGTH_SHORT).show();
+
+                finish();
+            }
+        } else {
+            callbackManager.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     private void checkLogin() {
@@ -193,6 +260,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             listenerInvite();
             rlNoti.setVisibility(View.VISIBLE);
             listenNotification();
+            updateCoin(utils.getUserInfo());
+            listenerResult();
         } else {
             btnLogin.setVisibility(View.VISIBLE);
             btnLogout.setVisibility(View.GONE);
@@ -221,10 +290,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         mRoot.child("Home").child(utils.getIdInvite()).child("Invite").child(utils.getKeyInvite())
                                                 .removeValue();
-                                        utils.saveIdInvite("");
-                                        utils.saveKeyInvite("");
                                         Intent intent = new Intent(MainActivity.this, GameActivity.class);
-
+                                        intent.putExtra(Common.INFO_RIVAL, utils.getIdInvite());
+//                                        utils.saveIdInvite("");
+                                        utils.saveKeyInvite("");
                                         startActivity(intent);
                                     }
                                 }).show();
@@ -255,32 +324,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 && !utils.getIdInvite().equals("") && !utils.getKeyInvite().equals("")) {
             mRoot.child("Home").child(utils.getIdInvite()).child("Invite").child(utils.getKeyInvite())
                     .child("result").addValueEventListener(listenerAccept);
-//            mRoot.child("Home").child(utils.getIdInvite()).child("Invite")
-//                    .addValueEventListener(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(DataSnapshot dataSnapshot) {
-////                 long a = dataSnapshot.getChildrenCount();
-////                    dataSnapshot.getValue();
-//                            if (!dataSnapshot.hasChild(utils.getKeyInvite())) {
-//                                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
-//                                        .setMessage("Đối thủ đã từ chối lời mời")
-//                                        .setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-//                                            @Override
-//                                            public void onClick(DialogInterface dialogInterface, int i) {
-//                                                dialogInterface.dismiss();
-//                                            }
-//                                        }).show();
-//                            } else {
-//
-//                            }
-//
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(DatabaseError databaseError) {
-//
-//                        }
-//                    });
         }
     }
 
@@ -304,4 +347,103 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
         mRoot.child("Home").child(utils.getUserInfo().getId()).child("Invite").addValueEventListener(listenerNoti);
     }
+
+    private void updateCoin(UserInfo userInfo) {
+        mRoot.child("Home").child(userInfo.getId()).child("coint").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int coint = dataSnapshot.getValue(Integer.class);
+                tvCoint.setText(coint + "");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void listenerResult() {
+
+        if (utils.getKeyPlay() != null) {
+            mRoot.child("Play").child(utils.getKeyPlay()).child(utils.getUserInfo().getId()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    myPoint = dataSnapshot.getValue(Integer.class);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            mRoot.child("Play").child(utils.getKeyPlay()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.hasChild(utils.getIdInvite())) {
+                        mRoot.child("Play").child(utils.getKeyPlay()).child(utils.getIdInvite()).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                rivalPoint = dataSnapshot.getValue(Integer.class);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            String result;
+            if (myPoint > rivalPoint) {
+                result = "Thắng";
+                utils.getUserInfo().setCoint(utils.getUserInfo().getCoint() + 1);
+                mRoot.child("Home").child(utils.getUserInfo().getId()).child("coint").setValue(utils.getUserInfo().getCoint() + 1);
+            } else if (myPoint == rivalPoint) {
+                result = "Hòa";
+            } else {
+                result = "Thua";
+                utils.getUserInfo().setCoint(utils.getUserInfo().getCoint() - 1);
+                mRoot.child("Home").child(utils.getUserInfo().getId()).child("coint").setValue(utils.getUserInfo().getCoint() - 1);
+            }
+            deleteRoom();
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setMessage(result)
+                    .setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            mRoot.child("Play").child(utils.getKeyPlay()).child("out").setValue(1);
+                            //1: out
+                            utils.saveKeyPlay(null);
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+
+        }
+    }
+
+    private void deleteRoom() {
+        mRoot.child("Play").child(utils.getKeyPlay()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild("out")) {
+                    mRoot.child("Play").child(utils.getKeyPlay()).removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 }
+

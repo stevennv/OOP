@@ -32,4 +32,14 @@ public class UserInfo {
     private String name;
     private String id;
     private String avatar;
+
+    public int getCoint() {
+        return coint;
+    }
+
+    public void setCoint(int coint) {
+        this.coint = coint;
+    }
+
+    private int coint;
 }

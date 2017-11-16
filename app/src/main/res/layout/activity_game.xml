@@ -17,6 +17,7 @@
         android:layout_above="@+id/ll_answer">
 
         <LinearLayout
+            android:id="@+id/item_suggest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -76,10 +77,26 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/tv_count_down"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/item_suggest"
+            android:layout_marginRight="@dimen/padding_20"
+            android:layout_marginTop="@dimen/padding_20"
+            android:background="@drawable/bg_coutdouwn"
+            android:gravity="center"
+            android:text="12"
+            android:textColor="@color/yellow"
+            android:textSize="@dimen/padding_20"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/tv_question"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+            android:gravity="center"
             android:textColor="#3c88a6"
             android:textSize="18dp"
             android:textStyle="bold" />

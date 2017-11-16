@@ -61,10 +61,10 @@ public class NotificationDialog extends Dialog implements View.OnClickListener {
         setContentView(R.layout.dialog_notification);
         utils = new SharedPreferencesUtils(getContext());
         mRoot = FirebaseDatabase.getInstance().getReference();
-        rvNoti = (RecyclerView) findViewById(R.id.rv_noti);
-        btnOk = (Button) findViewById(R.id.btn_accept);
-        btnReject = (Button) findViewById(R.id.btn_reject);
-        imgClose = (ImageView) findViewById(R.id.img_close);
+        rvNoti = findViewById(R.id.rv_noti);
+        btnOk = findViewById(R.id.btn_accept);
+        btnReject = findViewById(R.id.btn_reject);
+        imgClose = findViewById(R.id.img_close);
         imgClose.setOnClickListener(this);
         btnReject.setOnClickListener(this);
         btnOk.setOnClickListener(this);
@@ -120,7 +120,7 @@ public class NotificationDialog extends Dialog implements View.OnClickListener {
         mRoot.child("Home").child(utils.getUserInfo().getId()).child("Invite")
                 .child(noti.getKey()).child("result").setValue("ok");
         Intent intent = new Intent(getContext(), GameActivity.class);
-        intent.putExtra(Common.INFO_RIVAL, noti);
+        intent.putExtra(Common.INFO_RIVAL, noti.getId());
         getContext().startActivity(intent);
     }
 }
