@@ -67,6 +67,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private String idRival;
     private String keyPlay;
     private SharedPreferencesUtils utils;
+    private int playAlone;
+    private int dialogQuit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,12 +107,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         btnThanks.setOnClickListener(this);
         if (getIntent() != null) {
             idRival = getIntent().getStringExtra(Common.INFO_RIVAL);
-            if (Float.valueOf(idRival) > Float.valueOf(utils.getUserInfo().getId())) {
-                keyPlay = idRival + utils.getUserInfo().getId();
+            if (idRival != null) {
+                playAlone = 1;
+                if (Float.valueOf(idRival) > Float.valueOf(utils.getUserInfo().getId())) {
+                    keyPlay = idRival + utils.getUserInfo().getId();
+                } else {
+                    keyPlay = utils.getUserInfo().getId() + idRival;
+                }
+                utils.saveKeyPlay(keyPlay);
             } else {
-                keyPlay = utils.getUserInfo().getId() + idRival;
+                playAlone = 2;
             }
-            utils.saveKeyPlay(keyPlay);
+
         }
     }
 
@@ -157,7 +165,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 suggest3(3);
                 break;
             case R.id.btn_thanks:
-                rlSuggest.setVisibility(View.GONE);
+                if (dialogQuit == 1) {
+                    rlSuggest.setVisibility(View.GONE);
+                } else {
+                    finish();
+                }
                 break;
             case R.id.img_suggest4:
                 suggest4();
@@ -234,8 +246,24 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void suggest2(int answer) {
+        dialogQuit = 1;
         imgSuggest2.setVisibility(View.INVISIBLE);
         tvAnswerSuggest.setText("Tôi xin tư vấn cho bạn đáp án " + convertIntToAnswer(answer) + " là đáp án đúng!!!");
+        bottomOfScreen = getResources().getDisplayMetrics()
+                .heightPixels / 2;
+        Log.d("iniUI: ", "iniUI: " + getResources().getDisplayMetrics().heightPixels / 2 + "\n" + finalHeight);
+        rlSuggest.setVisibility(View.VISIBLE);
+        rlSuggest.animate()
+                .translationY(bottomOfScreen)
+                .setInterpolator(new AccelerateInterpolator())
+                .setInterpolator(new BounceInterpolator())
+                .setDuration(2000);
+    }
+
+    private void limitHour(int numberQuestion) {
+        dialogQuit = 2;
+        imgSuggest2.setVisibility(View.INVISIBLE);
+        tvAnswerSuggest.setText("Hết giờ. Bạn đã dừng lại ở câu hỏi số " + convertIntToAnswer(numberQuestion) + " .Chúc bạn đạt kết quả tốt hơn ở lần sau!!! ");
         bottomOfScreen = getResources().getDisplayMetrics()
                 .heightPixels / 2;
         Log.d("iniUI: ", "iniUI: " + getResources().getDisplayMetrics().heightPixels / 2 + "\n" + finalHeight);
@@ -347,7 +375,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 couttimeQuestion = new Couttime(20000, 1000, new Couttime.finish() {
                     @Override
                     public void finish() {
-                        setData(numberQuestion);
+                        if (playAlone == 1) {
+                            numberQuestion++;
+                            setData(numberQuestion);
+                        } else {
+                            disableButton();
+                            limitHour(listCorrect.size());
+                        }
                     }
                 }, new Couttime.progress() {
                     @Override
@@ -369,14 +403,35 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void checkAnswer(int myAnswer) {
 //        disableButton();
-        couttimeQuestion.cancel();
-        coutTime.cancel();
-        rlSuggest.setVisibility(View.GONE);
-        numberQuestion++;
-        setData(numberQuestion);
-        if (myAnswer == correct) {
-            listCorrect.add(numberQuestion);
+        if (playAlone == 1) {
+            couttimeQuestion.cancel();
+            coutTime.cancel();
+            rlSuggest.setVisibility(View.GONE);
+            numberQuestion++;
+            setData(numberQuestion);
+            if (myAnswer == correct) {
+                listCorrect.add(numberQuestion);
 
+            }
+        } else {
+            couttimeQuestion.cancel();
+            coutTime.cancel();
+            rlSuggest.setVisibility(View.GONE);
+            if (myAnswer == correct) {
+                numberQuestion++;
+                setData(numberQuestion);
+                listCorrect.add(numberQuestion);
+            } else {
+                AlertDialog dialog = new AlertDialog.Builder(this)
+                        .setMessage("Bạn đã trả lời sai.Bạn đã vượt qua được " + listCorrect.size() + " câu hỏi")
+                        .setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                finish();
+                            }
+                        }).setCancelable(false)
+                        .show();
+            }
         }
     }
 

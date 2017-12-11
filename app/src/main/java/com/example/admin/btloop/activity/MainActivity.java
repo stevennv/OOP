@@ -126,7 +126,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_play:
                 Intent intent = new Intent(this, GameActivity.class);
-                mRoot.child("Home").child(utils.getUserInfo().getId()).child("Invite").removeEventListener(listenerNoti);
+                if (listenerNoti != null) {
+                    mRoot.child("Home").child(utils.getUserInfo().getId()).child("Invite").removeEventListener(listenerNoti);
+                }
                 startActivity(intent);
 
                 break;
